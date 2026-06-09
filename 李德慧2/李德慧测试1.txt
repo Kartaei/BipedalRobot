@@ -1,0 +1,105 @@
+数字处理实验四
+
+% 实验四：FFT快速卷积（3种输入情况+全频谱分析）
+clc; clear all; close all;
+
+%% ===================== 1. 定义滤波器h(n) =====================
+N2 = 8;
+n_h = 0:N2-1;
+h = (1/2).^n_h;  % 滤波器：h(n)=(1/2)^n R8(n)
+
+% 计算滤波器的DTFT幅频/相频
+k_w = 0:2000;
+w = (2*pi/2000)*k_w;
+H_ejw = h * (exp(-1j * w)).^(n_h' * k_w);
+mag_H = abs(H_ejw);
+ang_H = angle(H_ejw);
+
+
+%% ===================== 2. 定义3种输入序列 & 快速卷积 =====================
+% 情况①：x1(n) = R8(n)
+N1 = 8;
+n_x = 0:N1-1;
+x1 = ones(1, N1);
+[y1, mag_X1, ang_X1, mag_Y1, ang_Y1] = fast_conv_fft(x1, h, N1, N2, w, n_x);
+
+% 情况②：x2(n) = cos(2π/8 n) R8(n)
+x2 = cos(2*pi/N1 * n_x);
+[y2, mag_X2, ang_X2, mag_Y2, ang_Y2] = fast_conv_fft(x2, h, N1, N2, w, n_x);
+
+% 情况③：x3(n) = (1/3)^n R8(n)
+x3 = (1/3).^n_x;
+[y3, mag_X3, ang_X3, mag_Y3, ang_Y3] = fast_conv_fft(x3, h, N1, N2, w, n_x);
+
+
+%% ===================== 3. 绘图：分3种情况展示 =====================
+% ---------- 情况①：x1(n)=R8(n) ----------
+figure('Color','w','Position',[100,100,1000,800]);
+subplot(3,3,1); stem(n_x, x1,'filled','Color','#1f77b4'); title('输入x1(n)=R_8(n)'); xlabel('n'); grid on;
+subplot(3,3,2); plot(w/pi, mag_X1,'Color','#1f77b4'); title('x1的幅频特性'); xlabel('×π rad'); grid on;
+subplot(3,3,3); plot(w/pi, ang_X1,'Color','#1f77b4'); title('x1的相频特性'); xlabel('×π rad'); grid on; axis([0,2,-pi,pi]);
+
+subplot(3,3,4); stem(n_h, h,'filled','Color','#ff7f0e'); title('滤波器h(n)'); xlabel('n'); grid on;
+subplot(3,3,5); plot(w/pi, mag_H,'Color','#ff7f0e'); title('h的幅频响应'); xlabel('×π rad'); grid on;
+subplot(3,3,6); plot(w/pi, ang_H,'Color','#ff7f0e'); title('h的相频响应'); xlabel('×π rad'); grid on; axis([0,2,-pi,pi]);
+
+n_y = 0:length(y1)-1;
+subplot(3,3,7); stem(n_y, y1,'filled','Color','#2ca02c'); title('输出y1(n)'); xlabel('n'); grid on;
+subplot(3,3,8); plot(w/pi, mag_Y1,'Color','#2ca02c'); title('y1的幅频特性'); xlabel('×π rad'); grid on;
+subplot(3,3,9); plot(w/pi, ang_Y1,'Color','#2ca02c'); title('y1的相频特性'); xlabel('×π rad'); grid on; axis([0,2,-pi,pi]);
+
+
+% ---------- 情况②：x2(n)=cos(2π/8 n)R8(n) ----------
+figure('Color','w','Position',[1100,100,1000,800]);
+subplot(3,3,1); stem(n_x, x2,'filled','Color','#1f77b4'); title('输入x2(n)=cos(2π/8 n)R_8(n)'); xlabel('n'); grid on;
+subplot(3,3,2); plot(w/pi, mag_X2,'Color','#1f77b4'); title('x2的幅频特性'); xlabel('×π rad'); grid on;
+subplot(3,3,3); plot(w/pi, ang_X2,'Color','#1f77b4'); title('x2的相频特性'); xlabel('×π rad'); grid on; axis([0,2,-pi,pi]);
+
+subplot(3,3,4); stem(n_h, h,'filled','Color','#ff7f0e'); title('滤波器h(n)'); xlabel('n'); grid on;
+subplot(3,3,5); plot(w/pi, mag_H,'Color','#ff7f0e'); title('h的幅频响应'); xlabel('×π rad'); grid on;
+subplot(3,3,6); plot(w/pi, ang_H,'Color','#ff7f0e'); title('h的相频响应'); xlabel('×π rad'); grid on; axis([0,2,-pi,pi]);
+
+n_y = 0:length(y2)-1;
+subplot(3,3,7); stem(n_y, y2,'filled','Color','#2ca02c'); title('输出y2(n)'); xlabel('n'); grid on;
+subplot(3,3,8); plot(w/pi, mag_Y2,'Color','#2ca02c'); title('y2的幅频特性'); xlabel('×π rad'); grid on;
+subplot(3,3,9); plot(w/pi, ang_Y2,'Color','#2ca02c'); title('y2的相频特性'); xlabel('×π rad'); grid on; axis([0,2,-pi,pi]);
+
+
+% ---------- 情况③：x3(n)=(1/3)^n R8(n) ----------
+figure('Color','w','Position',[2100,100,1000,800]);
+subplot(3,3,1); stem(n_x, x3,'filled','Color','#1f77b4'); title('输入x3(n)=(1/3)^n R_8(n)'); xlabel('n'); grid on;
+subplot(3,3,2); plot(w/pi, mag_X3,'Color','#1f77b4'); title('x3的幅频特性'); xlabel('×π rad'); grid on;
+subplot(3,3,3); plot(w/pi, ang_X3,'Color','#1f77b4'); title('x3的相频特性'); xlabel('×π rad'); grid on; axis([0,2,-pi,pi]);
+
+subplot(3,3,4); stem(n_h, h,'filled','Color','#ff7f0e'); title('滤波器h(n)'); xlabel('n'); grid on;
+subplot(3,3,5); plot(w/pi, mag_H,'Color','#ff7f0e'); title('h的幅频响应'); xlabel('×π rad'); grid on;
+subplot(3,3,6); plot(w/pi, ang_H,'Color','#ff7f0e'); title('h的相频响应'); xlabel('×π rad'); grid on; axis([0,2,-pi,pi]);
+
+n_y = 0:length(y3)-1;
+subplot(3,3,7); stem(n_y, y3,'filled','Color','#2ca02c'); title('输出y3(n)'); xlabel('n'); grid on;
+subplot(3,3,8); plot(w/pi, mag_Y3,'Color','#2ca02c'); title('y3的幅频特性'); xlabel('×π rad'); grid on;
+subplot(3,3,9); plot(w/pi, ang_Y3,'Color','#2ca02c'); title('y3的相频特性'); xlabel('×π rad'); grid on; axis([0,2,-pi,pi]);
+
+
+%% ===================== 快速卷积+频谱计算函数 =====================
+function [y, mag_X, ang_X, mag_Y, ang_Y] = fast_conv_fft(x, h, N1, N2, w, n_x)
+    % 快速卷积
+    N = 2^nextpow2(N1 + N2 - 1);
+    x_pad = [x, zeros(1, N - N1)];
+    h_pad = [h, zeros(1, N - N2)];
+    X = fft(x_pad, N);
+    H = fft(h_pad, N);
+    Y = X .* H;
+    y = real(ifft(Y, N));
+    
+    % 输入x的DTFT幅频/相频
+    X_ejw = x * (exp(-1j * w)).^(n_x' * length(w));
+    mag_X = abs(X_ejw);
+    ang_X = angle(X_ejw);
+    
+    % 输出y的DTFT幅频/相频
+    n_y = 0:length(y)-1;
+    Y_ejw = y * (exp(-1j * w)).^(n_y' * length(w));
+    mag_Y = abs(Y_ejw);
+    ang_Y = angle(Y_ejw);
+end
